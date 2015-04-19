@@ -18,7 +18,7 @@ window.onkeyup = function(e) {
         pressed[e.keyCode - 37] = false;
 }
 
-function auxinit() {
+function auxInit() {
     var va = vec4(0.0, 0.0, -1.0, 1);
     var vb = vec4(0.0, 0.942809, 0.333333, 1);
     var vc = vec4(-0.816497, -0.471405, 0.333333, 1);
@@ -44,8 +44,8 @@ function render() {
     eye = vec3(radius * Math.sin(theta) * Math.cos(phi),
         radius * Math.sin(theta) * Math.sin(phi),
         radius * Math.cos(theta));
-    P = perspective(70, 1, near, far);
-    MV = lookAt(eye, at, up);
+    P[stackLevel] = perspective(70, 1, near, far);
+    MV[stackLevel] = lookAt(eye, at, up);
 
     // Input
     var allForce = vec2();
@@ -91,6 +91,8 @@ function render() {
     setTranslate(pos[0], pos[1] + 1, pos[2]);
     drawObject("pyramid");
 
+
+    // Plane
     setRotateX(0);
     setTranslate(pos[0], pos[1] - 1, pos[2]);
     drawObject("plane");
