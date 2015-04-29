@@ -1,3 +1,11 @@
+function triangle(a, b, c) {
+    var pointsArray = [];
+    pointsArray.push(a);
+    pointsArray.push(b);
+    pointsArray.push(c);
+    return pointsArray;
+}
+
 function triangle(pointsArray, a, b, c) {
     pointsArray.push(a);
     pointsArray.push(b);
