@@ -41,40 +41,48 @@ window.onload = function init() {
     pr.mvLoc = gl.getUniformLocation(pr, "MV");
 
 
-    //Custom geometry
-    var va = [-1.0, -1.0, 0.0];
-    var vb = [1.0, -1.0, 0.0];
-    var vc = [-1.0, 1.0, 0.0];
-    var vertexArray = triangle(va, vb, vc);
+    //Generate uniform matrices
+    pr.P = mat4.create();
+    pr.MV = mat4.create();
 
-    var buffer = makeBuffer(vertexArray);
+
+    //Custom geometry
+    tri = rprism(5, 5, 1);
+    tri2 = rprism(1, 1, 1);
 
 
     //Render
+    animate();
+};
+
+var time = 0;
+function animate() {
+    time+=0.01;
+
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    var P = mat4.create();
-    var MV = mat4.create();
+    var P = pr.P;
+    var MV = pr.MV;
+    mat4.identity(P);
     mat4.perspective(P, 45, gl.viewportWidth / gl.viewportHeight, 1, 20);
-    mat4.translate(MV, MV, [0, 0, -6]);
+    mat4.identity(MV);
+    mat4.translate(MV, MV, vec3.fromValues(0, 0, -6));
+    mat4.rotateY(MV, MV, time);
     gl.uniformMatrix4fv(pr.pLoc, false, P);
     gl.uniformMatrix4fv(pr.mvLoc, false, MV);
 
-    gl.vertexAttribPointer(pr.vPositionLoc, buffer.itemSize, gl.FLOAT, false, 0, 0);
-    gl.drawArrays(gl.TRIANGLES, 0, buffer.numItems);
-};
+    renderObject(tri2);
 
-function makeBuffer(vertexArray) {
-    var buffer = gl.createBuffer();
+    requestAnimationFrame(animate);
+}
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexArray), gl.STATIC_DRAW);
+function renderObject(object) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, object.vertexBuffer);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, object.indexBuffer);
 
-    buffer.itemSize = vertexArray.itemSize;
-    buffer.numItems = vertexArray.numItems;
-
-    return buffer;
+    gl.vertexAttribPointer(pr.vPositionLoc, object.itemSize, gl.FLOAT, false, 0, 0);
+    gl.drawElements(gl.TRIANGLES, object.numItems, gl.UNSIGNED_SHORT, 0);
 }
 
 function getShader(gl, id) {
