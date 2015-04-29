@@ -1,18 +1,3 @@
-// Use
-var gl;
-var vertexBuffers = [];
-var colorBuffers = [];
-var nIndices = [];
-
-// Under
-var P = [mat4.create()];
-var MV = [mat4.create()];
-//var PLoc, MVLoc;
-//var vPosition, vColor;
-var stackLevel = 0;
-
-
-var program;
 
 // Initialize
 window.onload = function init() {
@@ -38,7 +23,7 @@ function initShaders(vertex, fragment) {
     var vertexShader = getShader(gl, vertex);
     var fragmentShader = getShader(gl, fragment);
 
-    program = gl.createProgram();
+    pr = gl.createProgram();
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
@@ -97,6 +82,6 @@ function animate() {
 }
 
 function setMatrixUniforms() {
-    gl.uniformMatrix4fv(program.pLoc, false, P[stackLevel]);
-    gl.uniformMatrix4fv(program.mvLoc, false, MV[stackLevel]);
+    gl.uniformMatrix4fv(pr.pLoc, false, P[stackLevel]);
+    gl.uniformMatrix4fv(pr.mvLoc, false, MV[stackLevel]);
 }

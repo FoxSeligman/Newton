@@ -88,7 +88,7 @@ function render() {
     //setTranslate(pos[0], pos[1], pos[2]);
     //drawObject("sphere", gl.LINE_LOOP);
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers["sphere"]);
-    gl.vertexAttribPointer(program.vertexPositionAttribute, vertexBuffers["sphere"].itemSize, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(pr.vertexPositionAttribute, vertexBuffers["sphere"].itemSize, gl.FLOAT, false, 0, 0);
     setMatrixUniforms();
     console.log(vertexBuffers["sphere"].numItems);
     gl.drawArrays(gl.TRIANGLES, 0, vertexBuffers["sphere"].numItems);
