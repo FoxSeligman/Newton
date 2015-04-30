@@ -88,12 +88,12 @@ function animate() {
     var MV = pr.MV;
     mat4.identity(P);
     mat4.perspective(P, 45, gl.viewportWidth / gl.viewportHeight, 1, 20);
+
     mat4.identity(MV);
     mat4.translate(MV, MV, vec3.fromValues(0, 0, -6));
     //mat4.rotateY(MV, MV, time);
     //mat4.rotateZ(MV, MV, time);
-    gl.uniformMatrix4fv(pr.pLoc, false, P);
-    gl.uniformMatrix4fv(pr.mvLoc, false, MV);
+    updateUniforms();
 
     //renderObject(tri);
     renderObject(tri2);
@@ -109,6 +109,11 @@ function animate() {
     }
 
     requestAnimationFrame(animate);
+}
+
+function updateUniforms() {
+    gl.uniformMatrix4fv(pr.pLoc, false, pr.P);
+    gl.uniformMatrix4fv(pr.mvLoc, false, pr.MV);
 }
 
 function renderObject(object) {
