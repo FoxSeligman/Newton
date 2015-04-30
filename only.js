@@ -38,8 +38,8 @@ window.onload = function init() {
         pr.vPositionLoc = gl.getAttribLocation(pr, "vPosition");
         gl.enableVertexAttribArray(pr.vPositionLoc);
 
-        //pr.aTextureCoordLoc = gl.getAttribLocation(pr, "aTextureCoord");
-        //gl.enableVertexAttribArray(pr.aTextureCoordLoc);
+        pr.aTextureCoordLoc = gl.getAttribLocation(pr, "aTextureCoord");
+        gl.enableVertexAttribArray(pr.aTextureCoordLoc);
 
         pr.pLoc = gl.getUniformLocation(pr, "P");
         pr.mvLoc = gl.getUniformLocation(pr, "MV");
@@ -90,13 +90,23 @@ function animate() {
     mat4.perspective(P, 45, gl.viewportWidth / gl.viewportHeight, 1, 20);
     mat4.identity(MV);
     mat4.translate(MV, MV, vec3.fromValues(0, 0, -6));
-    mat4.rotateY(MV, MV, time);
+    //mat4.rotateY(MV, MV, time);
     //mat4.rotateZ(MV, MV, time);
     gl.uniformMatrix4fv(pr.pLoc, false, P);
     gl.uniformMatrix4fv(pr.mvLoc, false, MV);
 
-    renderObject(tri);
+    //renderObject(tri);
     renderObject(tri2);
+
+    var MV2 = mat4.create();
+    var size = 10;
+    for (var row = -size/2; row < size/2; row++) {
+        for (var col = -size/2; col < size/2; col++) {
+            mat4.translate(MV2, MV, vec3.fromValues(row, -3, col));
+            gl.uniformMatrix4fv(pr.mvLoc, false, MV2);
+            renderObject(tri2);
+        }
+    }
 
     requestAnimationFrame(animate);
 }
@@ -107,15 +117,15 @@ function renderObject(object) {
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, object.indexBuffer);
 
-    //if (object.textureBuffer)
-    //{
-    //    gl.bindBuffer(gl.ARRAY_BUFFER, object.textureBuffer);
-    //    gl.vertexAttribPointer(pr.aTextureCoordLoc, 2, gl.FLOAT, false, 0, 0);
-    //
-    //    gl.activeTexture(gl.TEXTURE0);
-    //    gl.bindTexture(gl.TEXTURE_2D, cubeTexture);
-    //    gl.uniform1i(gl.getUniformLocation(pr, "uSampler"), 0);
-    //}
+    if (object.textureBuffer)
+    {
+        gl.bindBuffer(gl.ARRAY_BUFFER, object.textureBuffer);
+        gl.vertexAttribPointer(pr.aTextureCoordLoc, 2, gl.FLOAT, false, 0, 0);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, cubeTexture);
+        gl.uniform1i(gl.getUniformLocation(pr, "uSampler"), 0);
+    }
 
     gl.drawElements(gl.TRIANGLES, object.numItems, gl.UNSIGNED_SHORT, 0);
 }
