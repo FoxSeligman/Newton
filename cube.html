@@ -5,19 +5,19 @@
 <script id="vertex-shader" type="x-shader/x-vertex">
 
 attribute vec4 vPosition;
-//attribute vec4 vColor;
-
-//varying vec4 c;
+//attribute vec2 aTextureCoord;
 
 uniform mat4 P;
 uniform mat4 MV;
+
+//varying highp vec2 vTextureCoord;
 
 
 void
 main()
 {
     gl_Position = P * MV * vPosition;
-    //c = vColor;
+//    vTextureCoord = aTextureCoord;
 }
 </script>
 
@@ -25,13 +25,16 @@ main()
 
 precision mediump float;
 
-//varying vec4 c;
+//varying highp vec2 vTextureCoord;
+
+//uniform sampler2D uSampler;
+
 
 void
 main()
 {
     gl_FragColor = vec4(0.5, 0.0, 0.5, 1.0);
-    //gl_FragColor = c;
+//    gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
 }
 </script>
 
