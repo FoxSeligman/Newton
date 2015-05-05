@@ -1,6 +1,16 @@
 var gl;
 var pr;
 
+var pressed = [0,0,0,0];
+window.onkeydown = function(e) {
+    if (e.keyCode >= 37 && e.keyCode <= 40)
+        pressed[e.keyCode - 37] = 1;
+}
+window.onkeyup = function(e) {
+    if (e.keyCode >= 37 && e.keyCode <= 40)
+        pressed[e.keyCode - 37] = 0;
+}
+
 window.onload = function init() {
 
     //Initialize gl
@@ -56,16 +66,22 @@ window.onload = function init() {
 
 
         //Initialize textures
-        cubeTexture = gl.createTexture();
-        cubeImage = new Image();
-        cubeImage.onload = function() { handleTextureLoaded(cubeImage, cubeTexture); }
-        cubeImage.src = "cubetexture2.png";
+        cubeTexture = loadTexture("cubetexture2.png");
+        cubeTexture2 = loadTexture("cubetexture.png");
 
 
         //Render
         animate();
     }
 };
+
+function loadTexture(uri) {
+    var cubeTexture = gl.createTexture();
+    var cubeImage = new Image();
+    cubeImage.onload = function() { handleTextureLoaded(cubeImage, cubeTexture); }
+    cubeImage.src = uri;
+    return cubeTexture;
+}
 
 function handleTextureLoaded(image, texture) {
     console.log("handleTextureLoaded, image = " + image);
@@ -77,9 +93,46 @@ function handleTextureLoaded(image, texture) {
     gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
+var size = 50;
+var vel = [0,0,0];
+var pos = [size/2,0,size/2];
+var jetpackForce = 0.005;
+var dampening = 0.002;
 var time = 0;
 function animate() {
     time+=0.01;
+
+    // Input
+    var allForce = [0,0];
+    allForce[0] += jetpackForce * (pressed[0] - pressed[2]);
+    allForce[1] += jetpackForce * (pressed[3] - pressed[1]);
+
+    vel[0] += allForce[0];
+    vel[1] += allForce[1];
+
+    if (vel[0])
+        vel[0] = Math.max(0, Math.abs(vel[0]) - dampening) * (Math.abs(vel[0]) / vel[0]);
+    if (vel[1])
+        vel[1] = Math.max(0, Math.abs(vel[1]) - dampening) * (Math.abs(vel[1]) / vel[1]);
+
+    pos[0] -= vel[0];
+    pos[2] += vel[1];
+
+    if (pos[0] <= 0.5) {
+        pos[0] = 0.5;
+        vel[0] = 0;
+    } else if (pos[0] >= size - 0.5) {
+        pos[0] = size - 0.5;
+        vel[0] = 0;
+    }
+
+    if (pos[2] <= 0.5) {
+        pos[2] = 0.5;
+        vel[1] = 0;
+    } else if (pos[2] >= size - 0.5) {
+        pos[2] = size - 0.5;
+        vel[1] = 0;
+    }
 
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -87,24 +140,38 @@ function animate() {
     var P = pr.P;
     var MV = pr.MV;
     mat4.identity(P);
-    mat4.perspective(P, 45, gl.viewportWidth / gl.viewportHeight, 1, 20);
+    mat4.perspective(P, 45, gl.viewportWidth / gl.viewportHeight, 1, 50);
 
     mat4.identity(MV);
-    mat4.translate(MV, MV, vec3.fromValues(0, 0, -6));
+
+    var radius = 6;
+    var theta = 0;
+    var phi = 0;
+    var eye = vec3.fromValues(radius * Math.sin(theta) * Math.cos(phi),
+        radius * Math.sin(theta) * Math.sin(phi),
+        radius * Math.cos(theta));
+    eye = [0,0,0];
+    //MV[stackLevel] = lookAt(eye, at, up);
+    mat4.lookAt(MV, pos, eye, [0,1,0]);
+
+    //mat4.translate(MV, MV, pos);
+    //mat4.translate(MV, MV, vec3.fromValues(0, 0, -6));
     //mat4.rotateY(MV, MV, time);
-    //mat4.rotateZ(MV, MV, time);
+
     updateUniforms();
 
     //renderObject(tri);
-    renderObject(tri2);
+    renderObject(tri2, cubeTexture2);
 
     var MV2 = mat4.create();
-    var size = 10;
-    for (var row = -size/2; row < size/2; row++) {
-        for (var col = -size/2; col < size/2; col++) {
+    for (var row = 0; row < size; row++) {
+        for (var col = 0; col < size; col++) {
             mat4.translate(MV2, MV, vec3.fromValues(row, -3, col));
             gl.uniformMatrix4fv(pr.mvLoc, false, MV2);
-            renderObject(tri2);
+            if (Math.abs(row + pos[0]) <= 5 && Math.abs(col + pos[2]) <= 5)
+                renderObject(tri2, cubeTexture2);
+            else
+                renderObject(tri2, cubeTexture);
         }
     }
 
@@ -116,19 +183,19 @@ function updateUniforms() {
     gl.uniformMatrix4fv(pr.mvLoc, false, pr.MV);
 }
 
-function renderObject(object) {
+function renderObject(object, texture) {
     gl.bindBuffer(gl.ARRAY_BUFFER, object.vertexBuffer);
     gl.vertexAttribPointer(pr.vPositionLoc, object.itemSize, gl.FLOAT, false, 0, 0);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, object.indexBuffer);
 
-    if (object.textureBuffer)
+    if (object.textureBuffer && texture)
     {
         gl.bindBuffer(gl.ARRAY_BUFFER, object.textureBuffer);
         gl.vertexAttribPointer(pr.aTextureCoordLoc, 2, gl.FLOAT, false, 0, 0);
 
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, cubeTexture);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.uniform1i(gl.getUniformLocation(pr, "uSampler"), 0);
     }
 
