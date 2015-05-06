@@ -77,7 +77,7 @@ window.onload = function init() {
         gl.viewportWidth = canvas.width;
         gl.viewportHeight = canvas.height;
         gl.enable(gl.DEPTH_TEST);
-        gl.clearColor(0.5, 0.0, 0.0, 1.0);
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
         //gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
         //gl.enable(gl.BLEND);
 
