@@ -239,13 +239,20 @@ function animate() {
     var MV2 = mat4.create();
     mat4.copy(MV2, MV);
 
+    isLit = false;
     mat4.translate(MV, MV2, pointLightPos);
     mat4.rotateX(MV, MV, time);
-    mat4.rotateY(MV, MV, time);
-    isLit = false;
     updateUniforms();
+    renderObject(tet, cubeTexture2);
 
-    //renderObject(tri2, cubeTexture2);
+    mat4.translate(MV, MV2, pointLightPos);
+    mat4.rotateY(MV, MV, time);
+    updateUniforms();
+    renderObject(tet, cubeTexture2);
+
+    mat4.translate(MV, MV2, pointLightPos);
+    mat4.rotateZ(MV, MV, time);
+    updateUniforms();
     renderObject(tet, cubeTexture2);
 
     var currentTime = new Date();
