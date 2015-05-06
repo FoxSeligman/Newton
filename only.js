@@ -41,6 +41,11 @@ function cursorMoved(e) {
     theta += movementX * 0.01;
     phi += movementY * 0.01;
 
+    if (phi > Math.PI / 2)
+        phi = Math.PI / 2;
+    else if (phi < -Math.PI / 2)
+        phi = -Math.PI / 2;
+
     //console.log("X position: " + movementX + ', Y position: ' + movementY);
 }
 
