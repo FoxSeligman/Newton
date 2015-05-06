@@ -5,6 +5,8 @@ var canvas;
 var theta = 0;
 var phi = 0;
 
+var worlds;
+
 var pressed = [0,0,0,0];
 window.onkeydown = function(e) {
     if (e.keyCode >= 37 && e.keyCode <= 40)
@@ -107,6 +109,7 @@ window.onload = function init() {
         pr.mvLoc = gl.getUniformLocation(pr, "MV");
         pr.nLoc = gl.getUniformLocation(pr, "uNormalMatrix");
         pr.playerPosLoc = gl.getUniformLocation(pr, "playerPos");
+        pr.isLitLoc= gl.getUniformLocation(pr, "isLit");
 
 
         //Generate uniform matrices
@@ -123,6 +126,11 @@ window.onload = function init() {
         //Initialize textures
         cubeTexture = loadTexture("cubetexture2.png");
         cubeTexture2 = loadTexture("cubetexture.png");
+
+
+        //Build worlds
+        //var beegees = Object();
+        //beegees.audio = new Audio('http://localhost:63343/Newton/beegees.mp3');
 
 
         //Render
@@ -154,6 +162,7 @@ var pos = [size/2,0,size/2];
 var jetpackForce = 0.005;
 var dampening = 0.002;
 var time = 0;
+var isLit = false;
 function animate() {
     time+=0.01;
 
@@ -222,6 +231,7 @@ function animate() {
     for (var row = 0; row < size; row++) {
         for (var col = 0; col < size; col++) {
             mat4.translate(MV, MV2, vec3.fromValues(row, -3, col));
+            isLit = (row%2)^(col%2);
             updateUniforms();
             if (Math.abs(row + pos[0]) <= 5 && Math.abs(col + pos[2]) <= 5)
                 renderObject(tri2, cubeTexture2);
@@ -242,6 +252,8 @@ function updateUniforms() {
     gl.uniformMatrix4fv(pr.nLoc, false, pr.N);
 
     gl.uniformMatrix4fv(pr.playerPosLoc, false, vec3.fromValues(pos[0],pos[1],pos[2]));
+
+    gl.uniform1i(pr.isLitLoc, isLit);
 }
 
 function renderObject(object, texture) {
