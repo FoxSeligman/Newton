@@ -106,6 +106,7 @@ window.onload = function init() {
         pr.pLoc = gl.getUniformLocation(pr, "P");
         pr.mvLoc = gl.getUniformLocation(pr, "MV");
         pr.nLoc = gl.getUniformLocation(pr, "uNormalMatrix");
+        pr.playerPosLoc = gl.getUniformLocation(pr, "playerPos");
 
 
         //Generate uniform matrices
@@ -132,7 +133,7 @@ window.onload = function init() {
 function loadTexture(uri) {
     var cubeTexture = gl.createTexture();
     var cubeImage = new Image();
-    cubeImage.onload = function() { handleTextureLoaded(cubeImage, cubeTexture); }
+    cubeImage.onload = function() { handleTextureLoaded(cubeImage, cubeTexture); };
     cubeImage.src = uri;
     return cubeTexture;
 }
@@ -147,7 +148,7 @@ function handleTextureLoaded(image, texture) {
     gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
-var size = 50;
+var size = 10;
 var vel = [0,0,0];
 var pos = [size/2,0,size/2];
 var jetpackForce = 0.005;
@@ -239,6 +240,8 @@ function updateUniforms() {
     mat4.invert(pr.N, pr.MV);
     mat4.transpose(pr.N, pr.N);
     gl.uniformMatrix4fv(pr.nLoc, false, pr.N);
+
+    gl.uniformMatrix4fv(pr.playerPosLoc, false, vec3.fromValues(pos[0],pos[1],pos[2]));
 }
 
 function renderObject(object, texture) {

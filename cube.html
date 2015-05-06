@@ -11,6 +11,7 @@ attribute highp vec3 aVertexNormal;
 uniform highp mat4 uNormalMatrix;
 uniform highp mat4 P;
 uniform highp mat4 MV;
+uniform highp vec3 playerPos;
 
 varying highp vec2 vTextureCoord;
 varying highp vec3 vLighting;
@@ -22,9 +23,14 @@ main()
     gl_Position = P * MV * vPosition;
     vTextureCoord = aTextureCoord;
 
+    vec3 n = vec3(gl_Position / 3.0);
+    n = min(n,vec3(1.0,1.0,1.0));
+    n = max(n,vec3(0.0,0.0,0.0));
+
 
     //Lighting
-    highp vec3 ambientLight = vec3(0.6, 0.6, 0.6);
+//    highp vec3 ambientLight = vec3(0.6, 0.6, 0.6);
+    highp vec3 ambientLight = vec3(n);
     highp vec3 directionalLightColor = vec3(0.5, 0.5, 0.75);
     highp vec3 directionalVector = vec3(0.85, 0.8, 0.75);
 
