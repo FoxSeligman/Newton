@@ -1,20 +1,69 @@
 var gl;
 var pr;
+var canvas;
+
+var theta = 0;
+var phi = 0;
 
 var pressed = [0,0,0,0];
 window.onkeydown = function(e) {
     if (e.keyCode >= 37 && e.keyCode <= 40)
         pressed[e.keyCode - 37] = 1;
-}
+};
 window.onkeyup = function(e) {
     if (e.keyCode >= 37 && e.keyCode <= 40)
         pressed[e.keyCode - 37] = 0;
+};
+
+function lockChangeAlert() {
+    if(document.pointerLockElement === canvas ||
+        document.mozPointerLockElement === canvas ||
+        document.webkitPointerLockElement === canvas) {
+        console.log('The pointer lock status is now locked');
+        document.addEventListener("mousemove", cursorMoved, false);
+    } else {
+        console.log('The pointer lock status is now unlocked');
+        document.removeEventListener("mousemove", cursorMoved, false);
+    }
+}
+
+var x = 0;
+var y = 0;
+function cursorMoved(e) {
+    var movementX = e.movementX || e.mozMovementX || e.webkitMovementX || 0;
+    var movementY = e.movementY || e.mozMovementY || e.webkitMovementY || 0;
+
+    x += movementX;
+    y += movementY;
+
+    theta += movementX * 0.01;
+    phi += movementY * 0.01;
+
+    //console.log("X position: " + movementX + ', Y position: ' + movementY);
 }
 
 window.onload = function init() {
 
     //Initialize gl
-    var canvas = document.getElementById( "gl-canvas" );
+    canvas = document.getElementById( "gl-canvas" );
+
+
+
+    //Pointer lock
+    canvas.requestPointerLock = canvas.requestPointerLock ||
+        canvas.mozRequestPointerLock ||
+        canvas.webkitRequestPointerLock;
+
+    canvas.onclick = function() {
+        canvas.requestPointerLock();
+    };
+
+    document.addEventListener('pointerlockchange', lockChangeAlert, false);
+    document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
+    document.addEventListener('webkitpointerlockchange', lockChangeAlert, false);
+
+
+
 
     gl = canvas.getContext("experimental-webgl");
     if (gl) {
@@ -144,15 +193,10 @@ function animate() {
 
     mat4.identity(MV);
 
-    var radius = 6;
-    var theta = 0;
-    var phi = 0;
-    var eye = vec3.fromValues(radius * Math.sin(theta) * Math.cos(phi),
-        radius * Math.sin(theta) * Math.sin(phi),
-        radius * Math.cos(theta));
-    eye = [0,0,0];
-    //MV[stackLevel] = lookAt(eye, at, up);
-    mat4.lookAt(MV, pos, eye, [0,1,0]);
+    eye = [Math.cos(theta),-Math.sin(phi),Math.sin(theta)];
+    mat4.lookAt(MV, [0,0,0], eye, [0,1,0]);
+
+    mat4.translate(MV, MV, [-pos[0],-pos[1],-pos[2]]);
 
     //mat4.translate(MV, MV, pos);
     //mat4.translate(MV, MV, vec3.fromValues(0, 0, -6));
