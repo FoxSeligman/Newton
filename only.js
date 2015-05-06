@@ -100,13 +100,18 @@ window.onload = function init() {
         pr.aTextureCoordLoc = gl.getAttribLocation(pr, "aTextureCoord");
         gl.enableVertexAttribArray(pr.aTextureCoordLoc);
 
+        pr.aVertexNormalLoc = gl.getAttribLocation(pr, "aVertexNormal");
+        gl.enableVertexAttribArray(pr.aVertexNormalLoc);
+
         pr.pLoc = gl.getUniformLocation(pr, "P");
         pr.mvLoc = gl.getUniformLocation(pr, "MV");
+        pr.nLoc = gl.getUniformLocation(pr, "uNormalMatrix");
 
 
         //Generate uniform matrices
         pr.P = mat4.create();
         pr.MV = mat4.create();
+        pr.N = mat4.create();
 
 
         //Custom geometry
@@ -202,16 +207,21 @@ function animate() {
     //mat4.translate(MV, MV, vec3.fromValues(0, 0, -6));
     //mat4.rotateY(MV, MV, time);
 
+    var MV2 = mat4.create();
+    mat4.copy(MV2, MV);
+
+    mat4.rotateX(MV, MV, time);
+    mat4.rotateY(MV, MV, time);
     updateUniforms();
 
     //renderObject(tri);
     renderObject(tri2, cubeTexture2);
 
-    var MV2 = mat4.create();
+    mat4.copy(MV, MV2);
     for (var row = 0; row < size; row++) {
         for (var col = 0; col < size; col++) {
-            mat4.translate(MV2, MV, vec3.fromValues(row, -3, col));
-            gl.uniformMatrix4fv(pr.mvLoc, false, MV2);
+            mat4.translate(MV, MV2, vec3.fromValues(row, -3, col));
+            updateUniforms();
             if (Math.abs(row + pos[0]) <= 5 && Math.abs(col + pos[2]) <= 5)
                 renderObject(tri2, cubeTexture2);
             else
@@ -225,11 +235,18 @@ function animate() {
 function updateUniforms() {
     gl.uniformMatrix4fv(pr.pLoc, false, pr.P);
     gl.uniformMatrix4fv(pr.mvLoc, false, pr.MV);
+
+    mat4.invert(pr.N, pr.MV);
+    mat4.transpose(pr.N, pr.N);
+    gl.uniformMatrix4fv(pr.nLoc, false, pr.N);
 }
 
 function renderObject(object, texture) {
     gl.bindBuffer(gl.ARRAY_BUFFER, object.vertexBuffer);
     gl.vertexAttribPointer(pr.vPositionLoc, object.itemSize, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, object.normalBuffer);
+    gl.vertexAttribPointer(pr.aVertexNormalLoc, object.itemSize, gl.FLOAT, false, 0, 0);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, object.indexBuffer);
 
