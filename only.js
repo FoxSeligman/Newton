@@ -53,7 +53,8 @@ window.onload = function init() {
 
     //Initialize gl
     canvas = document.getElementById( "gl-canvas" );
-
+    canvas.style.width = screen.width + "px";
+    canvas.style.height = screen.height + "px";
 
 
     //Pointer lock
