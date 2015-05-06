@@ -38,7 +38,7 @@ function cursorMoved(e) {
     x += movementX;
     y += movementY;
 
-    theta += movementX * 0.01;
+    theta -= movementX * 0.01;
     phi += movementY * 0.01;
 
     if (phi > Math.PI / 2)
@@ -187,8 +187,9 @@ function animate() {
     allForce[0] += jetpackForce * (pressed[0] - pressed[2]);
     allForce[1] += jetpackForce * (pressed[3] - pressed[1]);
 
-    vel[0] += allForce[0];
-    vel[1] += allForce[1];
+    vel[0] += allForce[0] * Math.cos(theta - Math.PI) + allForce[1] * Math.cos(theta - Math.PI/2);
+    vel[1] += allForce[0] * Math.sin(theta - Math.PI) + allForce[1] * Math.sin(theta - Math.PI/2);
+
 
     if (vel[0])
         vel[0] = Math.max(0, Math.abs(vel[0]) - dampening) * (Math.abs(vel[0]) / vel[0]);
@@ -224,7 +225,7 @@ function animate() {
 
     mat4.identity(MV);
 
-    eye = [Math.cos(theta),-Math.sin(phi),Math.sin(theta)];
+    eye = [Math.sin(theta),-Math.sin(phi),Math.cos(theta)];
     mat4.lookAt(MV, [0,0,0], eye, [0,1,0]);
 
     mat4.translate(MV, MV, [-pos[0],-pos[1],-pos[2]]);
