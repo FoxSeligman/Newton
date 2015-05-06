@@ -179,6 +179,8 @@ var dampening = 0.002;
 var time = 0;
 var isLit = false;
 var pointLightPos = vec3.fromValues(size/2, 0, size/2);
+var lastTime = new Date();
+var toggle = false;
 function animate() {
     time+=0.01;
 
@@ -240,16 +242,22 @@ function animate() {
     mat4.translate(MV, MV2, pointLightPos);
     mat4.rotateX(MV, MV, time);
     mat4.rotateY(MV, MV, time);
+    isLit = false;
     updateUniforms();
 
     //renderObject(tri2, cubeTexture2);
     renderObject(tet, cubeTexture2);
 
+    var currentTime = new Date();
+    if (currentTime - lastTime >= 582) {
+        toggle ^= true;
+        lastTime = currentTime;
+    }
     mat4.copy(MV, MV2);
     for (var row = 0; row < size; row++) {
         for (var col = 0; col < size; col++) {
             mat4.translate(MV, MV2, vec3.fromValues(row, -3, col));
-            isLit = (row%2)^(col%2);
+            isLit = (row%2)^(col%2)^toggle;
             updateUniforms();
             if (Math.abs(row + pos[0]) <= 5 && Math.abs(col + pos[2]) <= 5)
                 renderObject(tri2, cubeTexture2);
