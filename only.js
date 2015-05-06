@@ -139,8 +139,8 @@ window.onload = function init() {
 
 
         //Initialize textures
-        cubeTexture = loadTexture("cubetexture2.png");
-        cubeTexture2 = loadTexture("cubetexture.png");
+        cubeTexture = loadTexture("texture2.png");
+        cubeTexture2 = loadTexture("specialtile.png");
 
 
         //Build worlds
@@ -259,7 +259,7 @@ function animate() {
             mat4.translate(MV, MV2, vec3.fromValues(row, -3, col));
             isLit = (row%2)^(col%2)^toggle;
             updateUniforms();
-            if (Math.abs(row + pos[0]) <= 5 && Math.abs(col + pos[2]) <= 5)
+            if (Math.abs(pos[0] - row) <= 2 && Math.abs(pos[2] - col) <= 2)
                 renderObject(tri2, cubeTexture2);
             else
                 renderObject(tri2, cubeTexture);
