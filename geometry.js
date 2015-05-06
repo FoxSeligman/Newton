@@ -12,6 +12,42 @@ function rect(va, vb, vc, vd) {
     return processArray(vertexArr, indexArr);
 }
 
+function tetrahedron(latitudeBands, longitudeBands, radius) {
+    var vertexArr = [];
+    var indexArr = [];
+    var vertexNormals = [];
+    var textureCoordinates = [];
+    var i = 0;
+    for (var latNumber = 0; latNumber <= latitudeBands; latNumber++) {
+        var theta = latNumber * Math.PI / latitudeBands;
+        var sinTheta = Math.sin(theta);
+        var cosTheta = Math.cos(theta);
+
+        for (var longNumber = 0; longNumber <= longitudeBands; longNumber++) {
+            var phi = longNumber * 2 * Math.PI / longitudeBands;
+            var sinPhi = Math.sin(phi);
+            var cosPhi = Math.cos(phi);
+
+            var x = cosPhi * sinTheta;
+            var y = cosTheta;
+            var z = sinPhi * sinTheta;
+            var u = 1 - (longNumber / longitudeBands);
+            var v = 1 - (latNumber / latitudeBands);
+
+            vertexNormals.push(x);
+            vertexNormals.push(y);
+            vertexNormals.push(z);
+            indexArr.push(i++);
+            textureCoordinates.push(u);
+            textureCoordinates.push(v);
+            vertexArr.push(radius * x);
+            vertexArr.push(radius * y);
+            vertexArr.push(radius * z);
+        }
+    }
+    return processArray(vertexArr, indexArr, textureCoordinates, vertexNormals);
+}
+
 function rprism(sx, sy, sz) {
     var vertexArr = [
         // Front face
@@ -141,14 +177,11 @@ function processArray(vertexArr, indexArr, textureCoordinates, vertexNormals) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexArr), gl.STATIC_DRAW);
 
 
-    var indexBuffer = object.indexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexArr), gl.STATIC_DRAW);
-
-
-    var normalBuffer = object.normalBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
+    if (indexArr) {
+        var indexBuffer = object.indexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexArr), gl.STATIC_DRAW);
+    }
 
 
     if (textureCoordinates) {
@@ -158,8 +191,15 @@ function processArray(vertexArr, indexArr, textureCoordinates, vertexNormals) {
     }
 
 
+    if (vertexNormals) {
+        var normalBuffer = object.normalBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
+    }
+
+
     object.itemSize = 3;
-    object.numItems = indexArr.length;
+    object.numItems = vertexArr.length / object.itemSize;
 
 
     return object;

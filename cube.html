@@ -13,6 +13,7 @@ uniform highp mat4 P;
 uniform highp mat4 MV;
 uniform highp vec3 playerPos;
 uniform bool isLit;
+uniform highp vec3 uPointLightingLocation;
 
 varying highp vec2 vTextureCoord;
 varying highp vec3 vLighting;
@@ -21,7 +22,8 @@ varying highp vec3 vLighting;
 void
 main()
 {
-    gl_Position = P * MV * vPosition;
+    vec4 mv_Position = MV * vPosition;
+    gl_Position = P * mv_Position;
     vTextureCoord = aTextureCoord;
 
     vec3 n = vec3(gl_Position / 3.0);
@@ -33,16 +35,21 @@ main()
 
 
     //Lighting
-//    highp vec3 ambientLight = vec3(0.6, 0.6, 0.6);
-    highp vec3 ambientLight = vec3(n);
-    highp vec3 directionalLightColor = vec3(0.5, 0.5, 0.75);
-//    highp vec3 directionalLightColor = n;
-    highp vec3 directionalVector = vec3(0.85, 0.8, 0.75);
+    highp vec3 ambientLight = n;
+//    highp vec3 ambientLight = vec3(0.6,0.6,0.6);
+    highp vec3 uPointLightingColor = vec3(1,1,1);
+//    highp vec3 directionalLightColor = vec3(0.5, 0.5, 0.75);
+//    highp vec3 directionalVector = vec3(0.85, 0.8, 0.75);
+//
+//    highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
+//
+//    highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
+//    vLighting = ambientLight + (directionalLightColor * directional);
 
-    highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
-
-    highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
-    vLighting = ambientLight + (directionalLightColor * directional);
+    vec4 lightDirection = normalize(vec4(uPointLightingLocation, 1) - mv_Position.xyzw);
+    vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1);
+    float directionalLightWeighting = max(dot(transformedNormal, lightDirection), 0.0);
+    vLighting = ambientLight + uPointLightingColor * directionalLightWeighting;
 }
 </script>
 

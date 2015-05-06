@@ -109,7 +109,8 @@ window.onload = function init() {
         pr.mvLoc = gl.getUniformLocation(pr, "MV");
         pr.nLoc = gl.getUniformLocation(pr, "uNormalMatrix");
         pr.playerPosLoc = gl.getUniformLocation(pr, "playerPos");
-        pr.isLitLoc= gl.getUniformLocation(pr, "isLit");
+        pr.isLitLoc = gl.getUniformLocation(pr, "isLit");
+        pr.pointLightPosLoc = gl.getUniformLocation(pr, "uPointLightingLocation");
 
 
         //Generate uniform matrices
@@ -121,6 +122,15 @@ window.onload = function init() {
         //Custom geometry
         tri = rprism(5, 5, 0.5);
         tri2 = rprism(1, 1, 1);
+
+
+        var s = 1;
+        var special = Math.sqrt(3) / 2;
+        var va = vec3.fromValues(-s/2, -special/2, -special/2);
+        var vb = vec3.fromValues(s/2, -special/2, -special/2);
+        var vc = vec3.fromValues(0, -special/2, special/2);
+        var vd = vec3.fromValues(0, special/2, 0);
+        tet = tetrahedron(24,24,1);
 
 
         //Initialize textures
@@ -163,6 +173,7 @@ var jetpackForce = 0.005;
 var dampening = 0.002;
 var time = 0;
 var isLit = false;
+var pointLightPos = vec3.fromValues(size/2, 0, size/2);
 function animate() {
     time+=0.01;
 
@@ -220,12 +231,13 @@ function animate() {
     var MV2 = mat4.create();
     mat4.copy(MV2, MV);
 
+    mat4.translate(MV, MV2, pointLightPos);
     mat4.rotateX(MV, MV, time);
     mat4.rotateY(MV, MV, time);
     updateUniforms();
 
-    //renderObject(tri);
-    renderObject(tri2, cubeTexture2);
+    //renderObject(tri2, cubeTexture2);
+    renderObject(tet, cubeTexture2);
 
     mat4.copy(MV, MV2);
     for (var row = 0; row < size; row++) {
@@ -254,6 +266,7 @@ function updateUniforms() {
     gl.uniformMatrix4fv(pr.playerPosLoc, false, vec3.fromValues(pos[0],pos[1],pos[2]));
 
     gl.uniform1i(pr.isLitLoc, isLit);
+    gl.uniform3f(pr.pointLightPosLoc, pointLightPos[0],pointLightPos[1],pointLightPos[2]);
 }
 
 function renderObject(object, texture) {
