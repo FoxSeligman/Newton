@@ -30,12 +30,17 @@ main()
     n = min(n,vec3(1.0,1.0,1.0));
     n = max(n,vec3(0.0,0.0,0.0));
 
+//    float n = length(vec4(playerPos,1) - gl_Position) / 10.0;
+//    n = min(n,1.0);
+//    n = max(n,0.0);
+
     if(isLit)
         n = vec3(0,0,0);
 
 
     //Lighting
     highp vec3 ambientLight = n;
+//    highp vec3 ambientLight = vec3(n,n,n);
 //    highp vec3 ambientLight = vec3(0.6,0.6,0.6);
     highp vec3 uPointLightingColor = vec3(1,1,1);
 //    highp vec3 directionalLightColor = vec3(0.5, 0.5, 0.75);
@@ -75,10 +80,6 @@ main()
 </script>
 
 <script type="text/javascript" src="gl-matrix.js"></script>
-<!--<script type="text/javascript" src="silph.js"></script>-->
-<!--<script type="text/javascript" src="shapes.js"></script>-->
-<!--<script type="text/javascript" src="objects.js"></script>-->
-<!--<script type="text/javascript" src="wireSphere.js"></script>-->
 <script type="text/javascript" src="geometry.js"></script>
 <script type="text/javascript" src="only.js"></script>
 

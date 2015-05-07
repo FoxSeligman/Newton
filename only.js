@@ -129,6 +129,8 @@ window.onload = function init() {
         tri = rprism(5, 5, 0.5);
         tri2 = rprism(1, 1, 1);
 
+        skybox = rprism(1000,1000,1000);
+
 
         var s = 1;
         var special = Math.sqrt(3) / 2;
@@ -142,6 +144,7 @@ window.onload = function init() {
         //Initialize textures
         cubeTexture = loadTexture("texture2.png");
         cubeTexture2 = loadTexture("specialtile.png");
+        skyboxtexture = loadTexture("skybox.jpg");
 
 
         //Build worlds
@@ -224,7 +227,7 @@ function animate() {
     var P = pr.P;
     var MV = pr.MV;
     mat4.identity(P);
-    mat4.perspective(P, 45, gl.viewportWidth / gl.viewportHeight, 1, 50);
+    mat4.perspective(P, 45, gl.viewportWidth / gl.viewportHeight, 1, 1500);
 
     mat4.identity(MV);
 
@@ -237,8 +240,23 @@ function animate() {
     //mat4.translate(MV, MV, vec3.fromValues(0, 0, -6));
     //mat4.rotateY(MV, MV, time);
 
+    isLit = false;
+
     var MV2 = mat4.create();
     mat4.copy(MV2, MV);
+
+    mat4.rotateZ(MV, MV2, Math.PI/2);
+    mat4.translate(MV, MV, [-1000,0,0]);
+    updateUniforms();
+    renderObject(skybox, skyboxtexture);
+
+    mat4.translate(MV, MV, [1000,0,0]);
+    updateUniforms();
+    renderObject(skybox, skyboxtexture);
+
+    mat4.translate(MV, MV, [1000,0,0]);
+    updateUniforms();
+    renderObject(skybox, skyboxtexture);
 
     isLit = false;
     mat4.translate(MV, MV2, pointLightPos);
